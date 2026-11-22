@@ -1,0 +1,30 @@
+<Window x:Class="SecureSync.App.Views.ConnectDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Connect by IP address" Width="440" Height="330" ResizeMode="NoResize" Style="{StaticResource DialogWindow}" WindowStartupLocation="CenterOwner">
+    <DockPanel>
+        <Border DockPanel.Dock="Bottom" Style="{StaticResource DialogFooter}">
+            <DockPanel LastChildFill="False">
+                <Path x:Name="Spinner" Style="{StaticResource Spinner}" Visibility="Collapsed" VerticalAlignment="Center"/>
+                <Button x:Name="ConnectButton" DockPanel.Dock="Right" Style="{StaticResource AccentButton}" Content="Connect" IsDefault="True" Click="OnConnect"/>
+                <Button DockPanel.Dock="Right" Content="Cancel" IsCancel="True" Margin="0,0,8,0"/>
+            </DockPanel>
+        </Border>
+
+        <StackPanel Margin="20,16,20,10">
+            <TextBlock Style="{StaticResource DialogHeading}" Text="Connect to your other computer directly"/>
+            <TextBlock Style="{StaticResource Hint}" Margin="0,6,0,12"
+                       Text="Use this if your computers can't find each other automatically — some guest, hotel or office networks block that. Unlock SecureSync on the other computer first."/>
+            <TextBlock Style="{StaticResource FieldLabel}" Text="Other computer's IP address:"/>
+            <TextBox x:Name="AddressBox" FontFamily="{StaticResource MonoFont}" Tag="e.g. 192.168.1.20 or 192.168.1.20:47821"/>
+            <TextBlock Style="{StaticResource Hint}" Margin="0,6,0,0">
+                <Run Text="This computer:"/>
+                <Run x:Name="ThisComputerRun" FontFamily="{StaticResource MonoFont}"/>
+            </TextBlock>
+            <Border x:Name="ErrorBox" Background="{StaticResource DangerSoftBrush}" BorderBrush="#F1BBBC" BorderThickness="1" CornerRadius="4"
+                    Padding="10,6" Margin="0,10,0,0" Visibility="Collapsed">
+                <TextBlock x:Name="ErrorText" TextWrapping="Wrap"/>
+            </Border>
+        </StackPanel>
+    </DockPanel>
+</Window>

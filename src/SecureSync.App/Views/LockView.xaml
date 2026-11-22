@@ -1,0 +1,160 @@
+<UserControl x:Class="SecureSync.App.Views.LockView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Background="{StaticResource ChromeBrush}">
+        <Border Width="520" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="16"
+                Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="18" ShadowDepth="2" Opacity="0.09" Direction="270"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <DockPanel Margin="24,22,24,0">
+                    <Image Source="{StaticResource LogoImage}" Width="32" Height="32" VerticalAlignment="Top" Margin="0,2,0,0"/>
+                    <StackPanel Margin="14,0,0,0">
+                        <TextBlock x:Name="TitleText" FontSize="20" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="SubtitleText" Style="{StaticResource Hint}" Margin="0,3,0,0"/>
+                    </StackPanel>
+                </DockPanel>
+
+                <!-- Pages -->
+                <Grid Grid.Row="1" Margin="70,16,24,18">
+                    <!-- Unlock -->
+                    <StackPanel x:Name="UnlockPage">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Sync chain:" Foreground="{StaticResource MutedBrush}" Margin="0,0,14,6"/>
+                            <TextBlock x:Name="UnlockChainText" Grid.Column="1" FontFamily="{StaticResource MonoFont}" Margin="0,0,0,6"/>
+                            <TextBlock Grid.Row="1" Text="This computer:" Foreground="{StaticResource MutedBrush}" Margin="0,0,14,6"/>
+                            <TextBlock x:Name="UnlockDeviceText" Grid.Row="1" Grid.Column="1" Margin="0,0,0,6"/>
+                            <TextBlock Grid.Row="2" Text="Encrypted files:" Foreground="{StaticResource MutedBrush}" Margin="0,0,14,0"/>
+                            <TextBlock x:Name="UnlockFolderText" Grid.Row="2" Grid.Column="1" TextTrimming="CharacterEllipsis"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Welcome -->
+                    <StackPanel x:Name="WelcomePage" Margin="-46,0,0,0">
+                        <Button Style="{StaticResource CommandLink}" Click="OnChooseCreate">
+                            <StackPanel>
+                                <TextBlock Text="Create a new sync chain" FontSize="14" Foreground="{StaticResource AccentBrush}"/>
+                                <TextBlock Style="{StaticResource Hint}" Margin="0,2,0,0"
+                                           Text="Start here on your first computer. SecureSync makes a new sync chain key that encrypts everything."/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource CommandLink}" Click="OnChooseJoin" Margin="0,4,0,0">
+                            <StackPanel>
+                                <TextBlock Text="Join an existing sync chain" FontSize="14" Foreground="{StaticResource AccentBrush}"/>
+                                <TextBlock Style="{StaticResource Hint}" Margin="0,2,0,0"
+                                           Text="Use this on your other computers. You'll need the sync chain key from the first one."/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Create / join: shared folder + name fields -->
+                    <StackPanel x:Name="SetupPage">
+                        <StackPanel x:Name="JoinKeyFields">
+                            <DockPanel Margin="0,0,0,4">
+                                <Button DockPanel.Dock="Right" Style="{StaticResource LinkButton}" Content="Open a key file…" Click="OnOpenKeyFile"/>
+                                <TextBlock Text="Sync chain key"/>
+                            </DockPanel>
+                            <TextBox x:Name="JoinKeyBox" FontFamily="{StaticResource MonoFont}" TextWrapping="Wrap" Height="46"
+                                     VerticalContentAlignment="Top" Padding="6,4" Tag="SS… (52 characters)" TextChanged="OnJoinKeyChanged"/>
+                            <TextBlock x:Name="JoinKeyHint" Style="{StaticResource Hint}" Margin="0,4,0,12" Text=" "/>
+                        </StackPanel>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Folder for the encrypted files"/>
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Content="Browse…" Margin="8,0,0,0" Click="OnBrowseFolder"/>
+                            <TextBox x:Name="FolderBox"/>
+                        </DockPanel>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="This computer's name" Margin="0,12,0,4"/>
+                        <TextBox x:Name="DeviceBox" MaxLength="40"/>
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,4,0,0" Text="Shown on your other computers."/>
+
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,14,0,0"
+                                   Text="Next, Windows Hello asks you to confirm it's you. SecureSync uses it to lock away the sync chain key on this computer, so you'll unlock with your PIN, fingerprint or face from now on."/>
+                    </StackPanel>
+
+                    <!-- Show the new key -->
+                    <StackPanel x:Name="KeyPage">
+                        <TextBox x:Name="KeyText" IsReadOnly="True" FontFamily="{StaticResource MonoFont}" FontSize="14" TextWrapping="Wrap"
+                                 Padding="8,6" VerticalContentAlignment="Top"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <Button Click="OnCopyKey">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE8C8;" FontSize="12" Margin="0,0,6,0"/>
+                                    <TextBlock Text="Copy"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Margin="8,0,0,0" Click="OnSaveKeyFile">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE74E;" FontSize="12" Margin="0,0,6,0"/>
+                                    <TextBlock Text="Save to file…"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <Border Background="{StaticResource WarningSoftBrush}" BorderBrush="#F2D37C" BorderThickness="1" CornerRadius="4"
+                                Padding="10,8" Margin="0,14,0,0">
+                            <DockPanel>
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE7BA;" Foreground="{StaticResource WarningBrush}" VerticalAlignment="Top" Margin="0,1,8,0"/>
+                                <TextBlock TextWrapping="Wrap"
+                                           Text="Keep this key secret: anyone who has it can read your files. Keep a copy somewhere safe (a password manager, or on paper) — it's the only way to set up another computer or recover your files."/>
+                            </DockPanel>
+                        </Border>
+                        <CheckBox x:Name="SavedKeyCheck" Content="I've saved my sync chain key" Margin="0,14,0,0" Checked="OnSavedKeyChanged" Unchecked="OnSavedKeyChanged"/>
+                    </StackPanel>
+
+                    <!-- Windows Hello not set up -->
+                    <StackPanel x:Name="NoHelloPage">
+                        <TextBlock TextWrapping="Wrap"
+                                   Text="SecureSync protects your sync chain key with Windows Hello, so only you can unlock it on this computer. Set up a Windows Hello PIN (or fingerprint or face) in Settings › Accounts › Sign-in options, then click Try again."/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Error -->
+                <Border x:Name="ErrorBox" Grid.Row="2" Margin="24,0,24,16" Background="{StaticResource DangerSoftBrush}" BorderBrush="#F1BBBC"
+                        BorderThickness="1" CornerRadius="4" Padding="10,8" Visibility="Collapsed">
+                    <DockPanel>
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE783;" Foreground="{StaticResource DangerBrush}" VerticalAlignment="Top" Margin="0,1,8,0"/>
+                        <TextBlock x:Name="ErrorText" TextWrapping="Wrap"/>
+                    </DockPanel>
+                </Border>
+
+                <!-- Footer -->
+                <Border x:Name="FooterBar" Grid.Row="3" Background="{StaticResource ChromeBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0"
+                        CornerRadius="0,0,8,8" Padding="24,14">
+                    <DockPanel LastChildFill="False">
+                        <Button x:Name="FooterLink" Style="{StaticResource LinkButton}" VerticalAlignment="Center" Click="OnFooterLink"/>
+                        <Button x:Name="PrimaryButton" DockPanel.Dock="Right" Style="{StaticResource AccentButton}" MinWidth="110" IsDefault="True" Click="OnPrimary">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock x:Name="PrimaryIcon" Style="{StaticResource Icon}" Text="&#xE785;" FontSize="13" Margin="0,0,7,0"/>
+                                <TextBlock x:Name="PrimaryText"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="SecondaryButton" DockPanel.Dock="Right" Margin="0,0,8,0" Click="OnSecondary"/>
+                        <StackPanel x:Name="BusyPanel" DockPanel.Dock="Right" Orientation="Horizontal" Margin="0,0,14,0" Visibility="Collapsed">
+                            <Path Style="{StaticResource Spinner}"/>
+                            <TextBlock x:Name="BusyText" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

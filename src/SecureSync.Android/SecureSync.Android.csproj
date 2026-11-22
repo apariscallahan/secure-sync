@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- SecureSync for Android (.NET MAUI). Built by build\build-android.ps1. Shares all crypto and sync code with
+       the Windows app through SecureSync.Core. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-android</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+    <RootNamespace>SecureSync.Mobile</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <ApplicationTitle>SecureSync</ApplicationTitle>
+    <ApplicationId>com.securesync.app</ApplicationId>
+    <ApplicationDisplayVersion>2.0.0</ApplicationDisplayVersion>
+    <ApplicationVersion>2</ApplicationVersion>
+
+    <!-- Android 11+: needed for BiometricPrompt with both biometrics and the screen-lock PIN/pattern/password. -->
+    <SupportedOSPlatformVersion>30.0</SupportedOSPlatformVersion>
+    <AndroidPackageFormats>apk</AndroidPackageFormats>
+    <!-- The shared core reads/writes its records with System.Text.Json reflection; Release trimming would turn that
+         off by default and strip the types, so keep both. -->
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <TrimmerRootAssembly Include="SecureSync.Core" />
+  </ItemGroup>
+
+  <!-- Test builds only: allow screenshots (normally blocked so file names and the key never show in Recent apps). -->
+  <PropertyGroup Condition="'$(AllowScreenshots)' == 'true'">
+    <DefineConstants>$(DefineConstants);ALLOW_SCREENSHOTS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#2741B8" />
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#2741B8" BaseSize="128,128" />
+    <MauiImage Include="Resources\Images\*.svg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+    <!-- 1.1.0.30 uses the same AndroidX versions as MAUI 10 (newer builds pull in mismatched libraries) --><PackageReference Include="Xamarin.AndroidX.Biometric" Version="1.1.0.30" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SecureSync.Core\SecureSync.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,6 @@
+<Project>
+  <!-- No debug symbols in release output (keeps the portable folder to just SecureSync.exe). -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+</Project>

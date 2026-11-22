@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SecureSync.Mobile.LockPage"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{StaticResource Background}">
+    <ScrollView>
+        <VerticalStackLayout Padding="24,48,24,24" Spacing="0">
+            <Image Source="logo.png" WidthRequest="72" HeightRequest="72" HorizontalOptions="Start" />
+            <Label x:Name="TitleLabel" Style="{StaticResource Title}" Margin="0,20,0,4" />
+            <Label x:Name="SubtitleLabel" Style="{StaticResource Muted}" />
+
+            <!-- Unlock -->
+            <VerticalStackLayout x:Name="UnlockPanel" Margin="0,28,0,0" Spacing="16">
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="8">
+                        <Label Text="Sync chain" Style="{StaticResource Muted}" />
+                        <Label x:Name="ChainLabel" Grid.Column="1" FontFamily="monospace" />
+                        <Label Grid.Row="1" Text="This phone" Style="{StaticResource Muted}" />
+                        <Label x:Name="DeviceLabel" Grid.Row="1" Grid.Column="1" />
+                    </Grid>
+                </Border>
+                <Button x:Name="UnlockButton" Text="Unlock" Clicked="OnUnlock" />
+            </VerticalStackLayout>
+
+            <!-- Welcome -->
+            <VerticalStackLayout x:Name="WelcomePanel" Margin="0,28,0,0" Spacing="10">
+                <Button Text="Create a new sync chain" Clicked="OnChooseCreate" />
+                <Label Style="{StaticResource Muted}" FontSize="13" Margin="8,0,8,12"
+                       Text="Start here if this is your first device. SecureSync makes a new sync chain key that encrypts everything." />
+                <Button Text="Join an existing sync chain" Style="{StaticResource Outlined}" Clicked="OnChooseJoin" />
+                <Label Style="{StaticResource Muted}" FontSize="13" Margin="8,0,8,0"
+                       Text="Use this if SecureSync is already set up on your computer. You'll need its sync chain key." />
+            </VerticalStackLayout>
+
+            <!-- Create / join -->
+            <VerticalStackLayout x:Name="SetupPanel" Margin="0,24,0,0" Spacing="6">
+                <VerticalStackLayout x:Name="JoinFields" Spacing="6">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Sync chain key" FontAttributes="Bold" VerticalOptions="Center" />
+                        <Button Grid.Column="1" Text="Paste" Style="{StaticResource TextButton}" Clicked="OnPasteKey" />
+                    </Grid>
+                    <Border Style="{StaticResource Card}" Padding="8,0">
+                        <Editor x:Name="KeyEditor" AutoSize="TextChanges" FontFamily="monospace" Placeholder="SS… (52 characters)"
+                                IsSpellCheckEnabled="False" IsTextPredictionEnabled="False" Keyboard="Plain" TextChanged="OnKeyChanged" />
+                    </Border>
+                    <Label x:Name="KeyHint" Style="{StaticResource Muted}" FontSize="13" Margin="4,0,0,12" Text=" " />
+                </VerticalStackLayout>
+                <Label Text="This phone's name" FontAttributes="Bold" />
+                <Border Style="{StaticResource Card}" Padding="8,0">
+                    <Entry x:Name="DeviceEntry" MaxLength="40" />
+                </Border>
+                <Label Style="{StaticResource Muted}" FontSize="13" Margin="4,0,0,0" Text="Shown on your other devices." />
+                <Label Style="{StaticResource Muted}" FontSize="13" Margin="0,16,0,16"
+                       Text="Next, your phone asks for your fingerprint, face or screen lock. SecureSync uses it to lock away the sync chain key on this phone — that's how you'll unlock from now on." />
+                <Button x:Name="SetupButton" Clicked="OnSetup" />
+                <Button Text="Back" Style="{StaticResource TextButton}" Clicked="OnBack" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <!-- New key -->
+            <VerticalStackLayout x:Name="KeyPanel" Margin="0,24,0,0" Spacing="12">
+                <Border Style="{StaticResource Card}" BackgroundColor="{StaticResource BrandSoft}" Stroke="Transparent">
+                    <Label x:Name="NewKeyLabel" FontFamily="monospace" FontSize="17" TextColor="{StaticResource BrandDark}" LineBreakMode="CharacterWrap" />
+                </Border>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Button Text="Copy" Style="{StaticResource Outlined}" Clicked="OnCopyKey" />
+                    <Button Grid.Column="1" Text="Share…" Style="{StaticResource Outlined}" Clicked="OnShareKey" />
+                </Grid>
+                <Border Style="{StaticResource Card}" BackgroundColor="{StaticResource WarningSoft}" Stroke="Transparent">
+                    <Label FontSize="14" TextColor="#5F3A00"
+                           Text="Keep this key secret: anyone who has it can read your files. Keep a copy somewhere safe, like a password manager — it's the only way to add another device or recover your files." />
+                </Border>
+                <HorizontalStackLayout Spacing="4">
+                    <CheckBox x:Name="SavedCheck" Color="{StaticResource Brand}" CheckedChanged="OnSavedChanged" />
+                    <Label Text="I've saved my sync chain key" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <Button x:Name="ContinueButton" Text="Continue" IsEnabled="False" Clicked="OnContinue" />
+            </VerticalStackLayout>
+
+            <!-- No screen lock -->
+            <VerticalStackLayout x:Name="NoLockPanel" Margin="0,24,0,0" Spacing="16">
+                <Label Text="SecureSync protects your key with your phone's fingerprint, face or screen lock. Set up a screen lock (PIN, pattern or password) in Settings › Security, then tap Try again." />
+                <Button Text="Open security settings" Style="{StaticResource Outlined}" Clicked="OnOpenSecuritySettings" />
+                <Button Text="Try again" Clicked="OnRetryAvailability" />
+            </VerticalStackLayout>
+
+            <!-- Busy / error / footer -->
+            <HorizontalStackLayout x:Name="BusyPanel" Spacing="12" Margin="0,20,0,0" IsVisible="False">
+                <ActivityIndicator IsRunning="True" WidthRequest="24" HeightRequest="24" />
+                <Label x:Name="BusyLabel" Style="{StaticResource Muted}" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <Border x:Name="ErrorBox" Style="{StaticResource Card}" BackgroundColor="{StaticResource DangerSoft}" Stroke="Transparent"
+                    Margin="0,20,0,0" IsVisible="False">
+                <Label x:Name="ErrorLabel" TextColor="#8C1D18" FontSize="14" />
+            </Border>
+            <Button x:Name="FooterButton" Style="{StaticResource TextButton}" Margin="0,28,0,0" HorizontalOptions="Center" Clicked="OnFooter" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

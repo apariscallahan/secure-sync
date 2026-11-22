@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+	<!--
+	  allowBackup=false: nothing from SecureSync (not even the encrypted files) is copied to Google's cloud backup.
+	  No background services, boot receivers, alarms or job schedulers: the app only does anything while it's open.
+	-->
+	<application android:allowBackup="false" android:fullBackupContent="false" android:dataExtractionRules="@xml/data_extraction_rules"
+	             android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true" android:label="SecureSync" />
+
+	<!-- Local network sync -->
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+	<!-- Receive the other devices' discovery announcements (Android filters broadcasts unless this is held) -->
+	<uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+	<!-- Fingerprint / face / screen lock to unlock -->
+	<uses-permission android:name="android.permission.USE_BIOMETRIC" />
+</manifest>

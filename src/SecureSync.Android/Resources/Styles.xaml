@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Same brand as the desktop app, Material-style for the phone -->
+    <Color x:Key="Brand">#2B4ACB</Color>
+    <Color x:Key="BrandDark">#1F3796</Color>
+    <Color x:Key="BrandSoft">#E8EDFC</Color>
+    <Color x:Key="Surface">#FFFFFF</Color>
+    <Color x:Key="Background">#F6F7F9</Color>
+    <Color x:Key="Text">#1B1C1F</Color>
+    <Color x:Key="MutedColor">#5F6368</Color>
+    <Color x:Key="Faint">#9AA0A6</Color>
+    <Color x:Key="Divider">#E6E8EB</Color>
+    <Color x:Key="Success">#188038</Color>
+    <Color x:Key="Warning">#B06000</Color>
+    <Color x:Key="WarningSoft">#FEF7E0</Color>
+    <Color x:Key="Danger">#C5221F</Color>
+    <Color x:Key="DangerSoft">#FCE8E6</Color>
+
+    <Style TargetType="NavigationPage">
+        <Setter Property="BarBackgroundColor" Value="{StaticResource Surface}" />
+        <Setter Property="BarTextColor" Value="{StaticResource Text}" />
+        <Setter Property="IconColor" Value="{StaticResource Text}" />
+    </Style>
+
+    <Style TargetType="ContentPage" ApplyToDerivedTypes="True">
+        <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+    </Style>
+
+    <Style TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource Text}" />
+        <Setter Property="FontSize" Value="15" />
+    </Style>
+
+    <Style x:Key="Title" TargetType="Label">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource Text}" />
+    </Style>
+
+    <Style x:Key="Muted" TargetType="Label">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{StaticResource MutedColor}" />
+    </Style>
+
+    <Style x:Key="Section" TargetType="Label">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource Brand}" />
+        <Setter Property="Margin" Value="0,20,0,6" />
+    </Style>
+
+    <Style TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource Brand}" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="CornerRadius" Value="24" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="Padding" Value="20,0" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="#C9D2F2" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style x:Key="Outlined" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+        <Setter Property="TextColor" Value="{StaticResource Brand}" />
+        <Setter Property="BorderColor" Value="#C4C9D4" />
+        <Setter Property="BorderWidth" Value="1" />
+        <Setter Property="CornerRadius" Value="24" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="FontAttributes" Value="Bold" />
+    </Style>
+
+    <Style x:Key="TextButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{StaticResource Brand}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="Padding" Value="8,0" />
+    </Style>
+
+    <Style TargetType="Entry">
+        <Setter Property="TextColor" Value="{StaticResource Text}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource Faint}" />
+        <Setter Property="FontSize" Value="16" />
+    </Style>
+
+    <Style TargetType="Editor">
+        <Setter Property="TextColor" Value="{StaticResource Text}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource Faint}" />
+    </Style>
+
+    <Style TargetType="ProgressBar">
+        <Setter Property="ProgressColor" Value="{StaticResource Brand}" />
+    </Style>
+
+    <Style TargetType="ActivityIndicator">
+        <Setter Property="Color" Value="{StaticResource Brand}" />
+    </Style>
+
+    <Style TargetType="Switch">
+        <Setter Property="OnColor" Value="{StaticResource BrandSoft}" />
+        <Setter Property="ThumbColor" Value="{StaticResource Brand}" />
+    </Style>
+
+    <!-- Rounded "card" -->
+    <Style x:Key="Card" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+        <Setter Property="Stroke" Value="{StaticResource Divider}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="Padding" Value="16" />
+    </Style>
+</ResourceDictionary>

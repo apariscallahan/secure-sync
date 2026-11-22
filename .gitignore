@@ -1,0 +1,10 @@
+bin/
+obj/
+dist/
+*.user
+.vs/
+SecureSync.settings.json
+.tools/
+.keys/
+installer/bin/
+installer/obj/

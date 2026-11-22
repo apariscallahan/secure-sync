@@ -1,0 +1,372 @@
+<UserControl x:Class="SecureSync.App.Views.ExplorerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:app="clr-namespace:SecureSync.App">
+    <UserControl.Resources>
+        <Storyboard x:Key="SpinStoryboard" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="SyncingIcon" Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                             From="0" To="360" Duration="0:0:1.4"/>
+        </Storyboard>
+        <Style x:Key="MenuIcon" TargetType="TextBlock" BasedOn="{StaticResource Icon}">
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+    </UserControl.Resources>
+
+    <UserControl.CommandBindings>
+        <CommandBinding Command="app:Commands.UploadFiles" Executed="OnUploadFiles" CanExecute="CanUpload"/>
+        <CommandBinding Command="app:Commands.UploadFolder" Executed="OnUploadFolder" CanExecute="CanUpload"/>
+        <CommandBinding Command="app:Commands.NewFolder" Executed="OnNewFolder" CanExecute="CanUseFolder"/>
+        <CommandBinding Command="app:Commands.OpenItem" Executed="OnOpen" CanExecute="CanActOnSingle"/>
+        <CommandBinding Command="app:Commands.SaveCopy" Executed="OnSaveCopy" CanExecute="CanActOnSelection"/>
+        <CommandBinding Command="app:Commands.Rename" Executed="OnRename" CanExecute="CanActOnSingle"/>
+        <CommandBinding Command="app:Commands.MoveTo" Executed="OnMoveTo" CanExecute="CanActOnSelection"/>
+        <CommandBinding Command="ApplicationCommands.Cut" Executed="OnCut" CanExecute="CanActOnSelection"/>
+        <CommandBinding Command="ApplicationCommands.Paste" Executed="OnPaste" CanExecute="CanPaste"/>
+        <CommandBinding Command="ApplicationCommands.Delete" Executed="OnDelete" CanExecute="CanActOnSelection"/>
+        <CommandBinding Command="ApplicationCommands.SelectAll" Executed="OnSelectAll"/>
+        <CommandBinding Command="app:Commands.Refresh" Executed="OnRefresh"/>
+        <CommandBinding Command="app:Commands.Back" Executed="OnBack" CanExecute="CanBack"/>
+        <CommandBinding Command="app:Commands.Forward" Executed="OnForward" CanExecute="CanForward"/>
+        <CommandBinding Command="app:Commands.Up" Executed="OnUp" CanExecute="CanUp"/>
+        <CommandBinding Command="app:Commands.Search" Executed="OnFocusSearch"/>
+        <CommandBinding Command="app:Commands.Lock" Executed="OnLock"/>
+        <CommandBinding Command="app:Commands.ToggleSync" Executed="OnToggleSync"/>
+        <CommandBinding Command="app:Commands.SyncActivity" Executed="OnShowActivity"/>
+    </UserControl.CommandBindings>
+
+    <DockPanel>
+        <!-- Menu bar -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Command="app:Commands.UploadFiles">
+                    <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE898;"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Command="app:Commands.UploadFolder"/>
+                <MenuItem Command="app:Commands.NewFolder">
+                    <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE8F4;"/></MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Command="app:Commands.OpenItem" InputGestureText="Enter"/>
+                <MenuItem Command="app:Commands.SaveCopy">
+                    <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE896;"/></MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="Show encrypted folder in File Explorer" Click="OnShowVaultFolder"/>
+                <Separator/>
+                <MenuItem Command="app:Commands.Lock">
+                    <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE72E;"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="E_xit" InputGestureText="Alt+F4" Click="OnExit"/>
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Command="ApplicationCommands.Cut" Header="Cu_t">
+                    <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE8C6;"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Command="ApplicationCommands.Paste" Header="_Paste">
+                    <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE77F;"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Command="app:Commands.MoveTo"/>
+                <Separator/>
+                <MenuItem Command="app:Commands.Rename">
+                    <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE8AC;"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Command="ApplicationCommands.Delete" Header="_Delete">
+                    <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE74D;"/></MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Command="ApplicationCommands.SelectAll" Header="Select _all"/>
+            </MenuItem>
+            <MenuItem Header="_View">
+                <MenuItem Command="app:Commands.Refresh">
+                    <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE72C;"/></MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="Sort by">
+                    <MenuItem x:Name="SortName" Header="_Name" Tag="name" Click="OnSortMenu" IsCheckable="False"/>
+                    <MenuItem x:Name="SortStatus" Header="S_tatus" Tag="status" Click="OnSortMenu"/>
+                    <MenuItem x:Name="SortDate" Header="_Date modified" Tag="date" Click="OnSortMenu"/>
+                    <MenuItem x:Name="SortType" Header="T_ype" Tag="type" Click="OnSortMenu"/>
+                    <MenuItem x:Name="SortSize" Header="_Size" Tag="size" Click="OnSortMenu"/>
+                </MenuItem>
+                <Separator/>
+                <MenuItem x:Name="ShowTreeMenu" Header="Folder _pane" IsCheckable="True" IsChecked="True" Click="OnToggleTree"/>
+            </MenuItem>
+            <MenuItem Header="_Sync">
+                <MenuItem x:Name="SyncMenuItem" Command="app:Commands.ToggleSync">
+                    <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE895;"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Command="app:Commands.SyncActivity"/>
+                <MenuItem Header="_Retry now" Click="OnRetryNow"/>
+                <Separator/>
+                <MenuItem Header="_Connect by IP address…" Click="OnConnectByIp"/>
+                <MenuItem Header="Chec_k and repair files…" Click="OnCheckRepair"/>
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="Show sync chain _key…" Click="OnShowKey">
+                    <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE8D7;"/></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="How your files are _protected" Click="OnSecurityInfo"/>
+                <Separator/>
+                <MenuItem Header="_About SecureSync" Click="OnAbout"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- Command bar -->
+        <Border DockPanel.Dock="Top" Padding="6,2,8,4">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button x:Name="SyncStatusButton" Style="{StaticResource ToolButton}" Command="app:Commands.SyncActivity">
+                        <StackPanel Orientation="Horizontal">
+                            <Grid Width="16" Height="16">
+                                <Ellipse x:Name="OffDot" Width="8" Height="8" Fill="{StaticResource FaintBrush}"/>
+                                <Ellipse x:Name="SearchingDot" Width="8" Height="8" Fill="#CA8A04" Visibility="Collapsed"/>
+                                <TextBlock x:Name="SyncingIcon" Style="{StaticResource Icon}" Text="&#xE895;" FontSize="13" Foreground="{StaticResource AccentBrush}"
+                                           Visibility="Collapsed" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                    <TextBlock.RenderTransform><RotateTransform/></TextBlock.RenderTransform>
+                                </TextBlock>
+                                <Grid x:Name="SyncedIcon" Visibility="Collapsed">
+                                    <Ellipse Fill="{StaticResource SuccessBrush}"/>
+                                    <Path Data="M4.4,8.3 L6.9,10.7 L11.6,5.8" Stroke="White" StrokeThickness="1.7"
+                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                                </Grid>
+                                <TextBlock x:Name="ProblemIcon" Style="{StaticResource Icon}" Text="&#xE7BA;" FontSize="14" Foreground="#C47C00"
+                                           Visibility="Collapsed" HorizontalAlignment="Center"/>
+                            </Grid>
+                            <TextBlock x:Name="SyncStatusText" Margin="7,0,0,0" VerticalAlignment="Center" Text="Not syncing"/>
+                        </StackPanel>
+                    </Button>
+                    <Border Style="{StaticResource VerticalSeparator}"/>
+                    <Button x:Name="SyncButton" Style="{StaticResource ToolButton}" Command="app:Commands.ToggleSync">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="SyncButtonIcon" Style="{StaticResource Icon}" Text="&#xE895;"/>
+                            <TextBlock x:Name="SyncButtonText" Text="Sync" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <Button Style="{StaticResource ToolButton}" Command="app:Commands.UploadFiles" ToolTip="Encrypt files and add them here (Ctrl+U)">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE898;" Foreground="{StaticResource AccentBrush}"/>
+                            <TextBlock Text="Upload files" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ToolButton}" Command="app:Commands.UploadFolder" ToolTip="Encrypt a folder and add it here (Ctrl+Shift+U)">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE838;" Foreground="{StaticResource AccentBrush}"/>
+                            <TextBlock Text="Upload folder" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ToolButton}" Command="app:Commands.NewFolder" ToolTip="New folder (Ctrl+Shift+N)">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE8F4;"/>
+                            <TextBlock Text="New folder" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Border Style="{StaticResource VerticalSeparator}"/>
+                    <Button Style="{StaticResource IconToolButton}" Command="ApplicationCommands.Cut" Content="&#xE8C6;" ToolTip="Cut (Ctrl+X)"/>
+                    <Button Style="{StaticResource IconToolButton}" Command="ApplicationCommands.Paste" Content="&#xE77F;" ToolTip="Paste (Ctrl+V)"/>
+                    <Button Style="{StaticResource IconToolButton}" Command="app:Commands.Rename" Content="&#xE8AC;" ToolTip="Rename (F2)"/>
+                    <Button Style="{StaticResource IconToolButton}" Command="app:Commands.MoveTo" Content="&#xE8DE;" ToolTip="Move to… (Ctrl+Shift+M)"/>
+                    <Button Style="{StaticResource IconToolButton}" Command="ApplicationCommands.Delete" Content="&#xE74D;" ToolTip="Delete (Del)"/>
+                    <Border Style="{StaticResource VerticalSeparator}"/>
+                    <Button Style="{StaticResource ToolButton}" Command="app:Commands.SaveCopy" ToolTip="Save a normal, decrypted copy somewhere on this computer (Ctrl+S)">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE896;"/>
+                            <TextBlock Text="Save copy" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Address bar -->
+        <DockPanel DockPanel.Dock="Top" Margin="6,0,8,6">
+            <Button Style="{StaticResource IconToolButton}" Command="app:Commands.Back" Content="&#xE72B;" ToolTip="Back (Alt+Left)"/>
+            <Button Style="{StaticResource IconToolButton}" Command="app:Commands.Forward" Content="&#xE72A;" ToolTip="Forward (Alt+Right)"/>
+            <Button Style="{StaticResource IconToolButton}" Command="app:Commands.Up" Content="&#xE74A;" ToolTip="Up (Alt+Up)"/>
+            <Button Style="{StaticResource IconToolButton}" Command="app:Commands.Refresh" Content="&#xE72C;" ToolTip="Refresh (F5)" Margin="1,0,6,0"/>
+            <Grid DockPanel.Dock="Right" Width="240" Margin="8,0,0,0">
+                <TextBox x:Name="SearchBox" Height="30" Padding="28,0,6,0" Tag="Search SecureSync" TextChanged="OnSearchChanged"
+                         KeyDown="OnSearchKeyDown"/>
+                <TextBlock Style="{StaticResource Icon}" Text="&#xE721;" FontSize="12" Foreground="{StaticResource MutedBrush}"
+                           HorizontalAlignment="Left" Margin="9,0,0,0" IsHitTestVisible="False"/>
+            </Grid>
+            <Border Height="30" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource ControlBorderBrush}" BorderThickness="1" CornerRadius="4">
+                <StackPanel x:Name="Breadcrumb" Orientation="Horizontal" Margin="6,0"/>
+            </Border>
+        </DockPanel>
+
+        <!-- Status bar -->
+        <Border DockPanel.Dock="Bottom" Height="26" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+            <DockPanel Margin="10,0">
+                <StackPanel x:Name="ProgressPanel" DockPanel.Dock="Right" Orientation="Horizontal" Visibility="Collapsed">
+                    <TextBlock x:Name="ProgressText" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}" MaxWidth="460" TextTrimming="CharacterEllipsis"/>
+                    <ProgressBar x:Name="ProgressBar" Width="170" Maximum="1" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="ProgressPercent" Width="38" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}"/>
+                    <Button x:Name="CancelWorkButton" Style="{StaticResource LinkButton}" Content="Cancel" Margin="10,0,0,0" VerticalAlignment="Center" Click="OnCancelWork"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="ItemCountText"/>
+                    <Border x:Name="SelectionSeparator" Style="{StaticResource VerticalSeparator}" Height="14" Margin="10,0"/>
+                    <TextBlock x:Name="SelectionText"/>
+                    <Border Style="{StaticResource VerticalSeparator}" Height="14" Margin="10,0"/>
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE72E;" FontSize="11" Foreground="{StaticResource MutedBrush}"/>
+                    <TextBlock x:Name="ChainText" Margin="5,0,0,0" Foreground="{StaticResource MutedBrush}"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Folder tree + file list -->
+        <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Background="{StaticResource SurfaceBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition x:Name="TreeColumn" Width="220" MinWidth="120"/>
+                    <ColumnDefinition x:Name="SplitterColumn" Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TreeView x:Name="FolderTree" Style="{StaticResource FolderTree}" AllowDrop="True" ItemsSource="{Binding}"
+                          SelectedItemChanged="OnTreeSelectionChanged" DragOver="OnTreeDragOver" DragLeave="OnTreeDragLeave" Drop="OnTreeDrop">
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="{Binding Icon}" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                <TextBlock Text="{Binding Name}" Margin="6,0,2,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+
+                <GridSplitter x:Name="Splitter" Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="Transparent" Focusable="False">
+                    <GridSplitter.Template>
+                        <ControlTemplate TargetType="GridSplitter">
+                            <Border Background="Transparent">
+                                <Border Width="1" Background="{StaticResource BorderBrush}" HorizontalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </GridSplitter.Template>
+                </GridSplitter>
+
+                <DockPanel Grid.Column="2">
+                    <!-- Info bar (notices) -->
+                    <Border x:Name="NoticeBar" DockPanel.Dock="Top" Margin="8,8,8,0" CornerRadius="4" BorderThickness="1" Padding="10,6,4,6" Visibility="Collapsed">
+                        <DockPanel>
+                            <TextBlock x:Name="NoticeIcon" Style="{StaticResource Icon}" Margin="0,0,10,0"/>
+                            <Button DockPanel.Dock="Right" Style="{StaticResource IconToolButton}" Width="24" Height="24" FontSize="10"
+                                    Content="&#xE711;" Click="OnDismissNotice" ToolTip="Dismiss"/>
+                            <Button x:Name="NoticeAction" DockPanel.Dock="Right" Margin="8,0,4,0" MinWidth="0" Visibility="Collapsed" Click="OnNoticeAction"/>
+                            <TextBlock x:Name="NoticeText" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                        </DockPanel>
+                    </Border>
+
+                    <Grid>
+                        <ListView x:Name="FileList" BorderThickness="0" Background="Transparent" Padding="0,2,0,0" AllowDrop="True"
+                                  ItemContainerStyle="{StaticResource FileRowStyle}" SelectionMode="Extended"
+                                  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  SelectionChanged="OnSelectionChanged" KeyDown="OnListKeyDown"
+                                  PreviewMouseLeftButtonDown="OnListMouseDown" PreviewMouseMove="OnListMouseMove" PreviewMouseLeftButtonUp="OnListMouseUp"
+                                  DragOver="OnListDragOver" DragLeave="OnListDragLeave" Drop="OnListDrop"
+                                  GridViewColumnHeader.Click="OnHeaderClick" SizeChanged="OnListSizeChanged" ContextMenuOpening="OnListContextMenuOpening">
+                            <ListView.ContextMenu>
+                                <ContextMenu x:Name="ItemMenu">
+                                    <MenuItem x:Name="MenuOpen" Command="app:Commands.OpenItem" FontWeight="SemiBold" InputGestureText="Enter"/>
+                                    <MenuItem x:Name="MenuOpenLocation" Header="Open file _location" Click="OnOpenLocation"/>
+                                    <MenuItem x:Name="MenuSaveCopy" Command="app:Commands.SaveCopy">
+                                        <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE896;"/></MenuItem.Icon>
+                                    </MenuItem>
+                                    <Separator x:Name="MenuSeparator1"/>
+                                    <MenuItem x:Name="MenuCut" Command="ApplicationCommands.Cut" Header="Cu_t">
+                                        <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE8C6;"/></MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Command="ApplicationCommands.Paste" Header="_Paste">
+                                        <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE77F;"/></MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem x:Name="MenuMoveTo" Command="app:Commands.MoveTo"/>
+                                    <Separator x:Name="MenuSeparator2"/>
+                                    <MenuItem x:Name="MenuRename" Command="app:Commands.Rename">
+                                        <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE8AC;"/></MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem x:Name="MenuDelete" Command="ApplicationCommands.Delete" Header="_Delete">
+                                        <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE74D;"/></MenuItem.Icon>
+                                    </MenuItem>
+                                    <Separator x:Name="MenuSeparator3"/>
+                                    <MenuItem x:Name="MenuNewFolder" Command="app:Commands.NewFolder">
+                                        <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE8F4;"/></MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem x:Name="MenuUploadHere" Command="app:Commands.UploadFiles">
+                                        <MenuItem.Icon><TextBlock Style="{StaticResource MenuIcon}" Text="&#xE898;"/></MenuItem.Icon>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </ListView.ContextMenu>
+                            <ListView.View>
+                                <GridView ColumnHeaderContainerStyle="{StaticResource ColumnHeader}" AllowsColumnReorder="True">
+                                    <GridViewColumn x:Name="NameColumn" Width="320">
+                                        <GridViewColumnHeader Content="Name" Tag="name"/>
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="2,0,0,0">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Image Source="{Binding Icon}" Width="16" Height="16" Opacity="{Binding IconOpacity}"
+                                                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                        <TextBlock Margin="6,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                                            <Run Text="{Binding Name, Mode=OneWay}"/><Run Text="{Binding LocationSuffix, Mode=OneWay}" Foreground="{StaticResource FaintBrush}"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                    <TextBox Visibility="{Binding EditVisibility}" Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}"
+                                                             Margin="20,0,0,0" MinHeight="0" Height="22" Padding="2,0" BorderBrush="{StaticResource AccentBrush}"
+                                                             IsVisibleChanged="OnRenameBoxVisibleChanged" PreviewKeyDown="OnRenameKeyDown"
+                                                             LostKeyboardFocus="OnRenameLostFocus"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="170">
+                                        <GridViewColumnHeader Content="Status" Tag="status"/>
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" ToolTip="{Binding StatusText}">
+                                                    <TextBlock Style="{StaticResource Icon}" Text="{Binding StatusGlyph}" Foreground="{Binding StatusBrush}" FontSize="12" Width="16"/>
+                                                    <TextBlock Text="{Binding StatusText}" Margin="4,0,0,0" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="140">
+                                        <GridViewColumnHeader Content="Date modified" Tag="date"/>
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding ModifiedText}" Foreground="{StaticResource MutedBrush}"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="150">
+                                        <GridViewColumnHeader Content="Type" Tag="type"/>
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding TypeName}" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="90">
+                                        <GridViewColumnHeader Content="Size" Tag="size" HorizontalContentAlignment="Right"/>
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding SizeText}" Foreground="{StaticResource MutedBrush}" TextAlignment="Right" Width="74"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+
+                        <TextBlock x:Name="EmptyText" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,40,0,0"
+                                   Foreground="{StaticResource MutedBrush}" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="360"
+                                   IsHitTestVisible="False" Visibility="Collapsed"/>
+                    </Grid>
+                </DockPanel>
+            </Grid>
+        </Border>
+    </DockPanel>
+</UserControl>

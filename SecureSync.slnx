@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SecureSync.App/SecureSync.App.csproj" />
+    <Project Path="src/SecureSync.Core/SecureSync.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SecureSync.Tests/SecureSync.Tests.csproj" />
+  </Folder>
+</Solution>

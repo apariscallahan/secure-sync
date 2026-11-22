@@ -1,0 +1,15 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <!--
+    Windows installer (MSI). Built by build\build-windows.ps1, which passes:
+      AppExe   full path of the published, self-contained SecureSync.exe
+      Version  product version, e.g. 2.0.0
+  -->
+  <PropertyGroup>
+    <OutputName>SecureSync-Setup</OutputName>
+    <OutputType>Package</OutputType>
+    <Version Condition="'$(Version)' == ''">2.0.0</Version>
+    <!-- ICE91 only matters for per-machine installs; this one is per-user by design. -->
+    <SuppressIces>ICE91</SuppressIces>
+    <DefineConstants>AppExe=$(AppExe);ProductVersion=$(Version);IconFile=$(MSBuildThisFileDirectory)..\src\SecureSync.App\Assets\SecureSync.ico</DefineConstants>
+  </PropertyGroup>
+</Project>
